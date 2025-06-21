@@ -10,24 +10,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Set up JDK 8
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
+          distribution: temurin
           java-version: '8'
 
       - name: Install dependencies
         run: |
-          sudo apt update
-          sudo apt install -y python3-pip build-essential git \
+          sudo apt-get update
+          sudo apt-get install -y python3-pip build-essential git \
                libffi-dev libssl-dev zlib1g-dev libsqlite3-dev
           pip3 install --user buildozer
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - name: Add buildozer to PATH
+        run: echo "${{ runner.home }}/.local/bin" >> $GITHUB_PATH
 
       - name: Build APK
         run: |
+          cd $GITHUB_WORKSPACE
           buildozer android debug --verbose
 
       - name: Upload APK artifact
