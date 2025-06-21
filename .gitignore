@@ -1,0 +1,14 @@
+# Buildozer build artifacts
+.buildozer/
+bin/
+# Python caches
+__pycache__/
+*.py[cod]
+.env
+# Android Studio/Gradle
+*.iml
+.gradle/
+local.properties
+# IDE files
+.vscode/
+.idea/
