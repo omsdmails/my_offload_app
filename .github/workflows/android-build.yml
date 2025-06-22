@@ -2,7 +2,8 @@ name: Build Android APK
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -44,7 +45,7 @@ jobs:
           echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
           echo "$HOME/android-sdk/platform-tools"       >> $GITHUB_PATH
 
-      - name: Accept SDK licenses & install SDK components
+      - name: Accept licenses & install SDK components
         run: |
           yes | sdkmanager --sdk_root="$HOME/android-sdk" --licenses
           sdkmanager --sdk_root="$HOME/android-sdk" \
@@ -62,8 +63,7 @@ jobs:
           ln -s "${BOZ_SDK}/tools/latest/bin"        "${BOZ_SDK}/tools/bin"
 
       - name: Install Buildozer & Cython
-        run: |
-          pip3 install --user --upgrade buildozer cython
+        run: pip3 install --user --upgrade buildozer cython
 
       - name: Add Buildozer to PATH
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
@@ -71,8 +71,7 @@ jobs:
       - name: Build APK (capture log)
         working-directory: ${{ github.workspace }}
         run: |
--         buildozer android debug --sdk-dir "$HOME/android-sdk" --verbose 2>&1 | tee buildozer.log || true
-+         buildozer android debug --verbose --sdk-dir "$HOME/android-sdk" 2>&1 | tee buildozer.log || true
+          buildozer android debug --verbose --sdk-dir "$HOME/android-sdk" 2>&1 | tee buildozer.log || true
 
       - name: Upload Buildozer log
         uses: actions/upload-artifact@v4
