@@ -1,44 +1,62 @@
-name: Build Android APK
+[app]
 
-on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
+# (Required) Title of your application
+title = OffloadApp
 
-jobs:
-  build-apk:
-    runs-on: ubuntu-latest
+# (Required) Package name
+package.name = offloadapp
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+# (Required) Package domain (reverse DNS style)
+package.domain = org.example
 
-      - name: Set up JDK 8
-        uses: actions/setup-java@v3
-        with:
-          distribution: temurin
-          java-version: '8'
+# Source code location
+source.dir = .
+source.include_exts = py,kv
+source.exclude_exts = spec
+source.include_patterns = assets/*,images/*.png
+source.exclude_dirs = tests, bin
 
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-pip build-essential git \
-               libffi-dev libssl-dev zlib1g-dev libsqlite3-dev
+# Versioning
+version = 1.0
+android.version_code = 1
 
-      - name: Install Buildozer & Cython
-        run: |
-          pip3 install --user buildozer cython
+# Application requirements
+requirements = kivy,flask,requests,psutil,zeroconf,cython
 
-      - name: Add Buildozer to PATH
-        run: echo "${{ runner.home }}/.local/bin" >> $GITHUB_PATH
+# Orientation
+orientation = portrait
 
-      - name: Build APK
-        run: |
-          cd $GITHUB_WORKSPACE
-          buildozer android debug --verbose
+# Bootstrap (sdl2 is the recommended one)
+bootstrap = sdl2
 
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: offloadapp-apk
-          path: bin/*.apk
+# Supported architectures
+arch = armeabi-v7a, arm64-v8a
+
+# Android NDK API level
+android.ndk_api = 23
+
+# Icon and Presplash
+icon.filename = %(source.dir)s/icon.png
+presplash.filename = %(source.dir)s/presplash.png
+
+# Permissions
+android.permissions = INTERNET
+
+# Optional SQLite3
+android.sqlite3 = True
+
+# Entry point
+android.entrypoint = org.kivy.android.PythonActivity
+
+# API Levels
+android.minapi = 21
+android.target = 30
+android.compile_sdk = 30
+android.build_tools_version = 30.0.3
+
+# Logging
+log_level = 2
+
+# Prevent deploy and run after build
+deploy = 0
+run = 0
