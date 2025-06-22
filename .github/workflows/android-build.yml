@@ -14,11 +14,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Java (JDK 8)
+      - name: Set up Java (JDK 11)
         uses: actions/setup-java@v3
         with:
           distribution: temurin
-          java-version: '8'
+          java-version: '11'
 
       - name: Install system packages
         run: |
@@ -26,7 +26,7 @@ jobs:
           sudo apt-get install -y \
             python3-pip build-essential git \
             libffi-dev libssl-dev zlib1g-dev \
-            wget unzip
+            wget unzip openjdk-11-jdk-headless
 
       - name: Install Android SDK command-line tools
         run: |
