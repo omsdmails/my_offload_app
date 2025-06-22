@@ -36,7 +36,7 @@ jobs:
           mv "$HOME/android-sdk/cmdline-tools/cmdline-tools" "$HOME/android-sdk/cmdline-tools/latest"
           rm tools.zip
 
-      - name: Configure SDK PATH
+      - name: Configure SDK paths
         run: |
           echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
           echo "$HOME/android-sdk/platform-tools" >> $GITHUB_PATH
@@ -49,18 +49,23 @@ jobs:
             "platforms;android-30" \
             "build-tools;30.0.3"
 
-      - name: Sync SDK for Buildozer
+      - name: Sync SDK for Buildozer & create tools symlink
         run: |
-          mkdir -p ~/.buildozer/android/platform/android-sdk
-          rsync -a "$HOME/android-sdk/" ~/.buildozer/android/platform/android-sdk/
+          BOZ_SDK="$HOME/.buildozer/android/platform/android-sdk"
+          mkdir -p "${BOZ_SDK}"
+          rsync -a "$HOME/android-sdk/" "${BOZ_SDK}/"
+          # Buildozer expects 'tools/bin/sdkmanager'
+          mkdir -p "${BOZ_SDK}/tools"
+          ln -s "${HOME}/android-sdk/cmdline-tools/latest" "${BOZ_SDK}/tools/latest"
+          # Symlink so that ~/.buildozer/.../tools/bin points correctly
+          ln -s "${BOZ_SDK}/tools/latest/bin" "${BOZ_SDK}/tools/bin"
 
       - name: Install Buildozer & Cython
         run: |
           pip3 install --user --upgrade buildozer cython
 
       - name: Add Buildozer to PATH
-        run: |
-          echo "${{ runner.home }}/.local/bin" >> $GITHUB_PATH
+        run: echo "${{ runner.home }}/.local/bin" >> $GITHUB_PATH
 
       - name: Build APK
         working-directory: ${{ github.workspace }}
