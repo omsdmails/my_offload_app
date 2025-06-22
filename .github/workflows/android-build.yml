@@ -21,7 +21,7 @@ version = 1.0
 android.version_code = 1
 
 # Application requirements
-requirements = kivy,flask,requests,psutil,zeroconf,cython
+requirements = python3,kivy,flask,requests,psutil,zeroconf,cython
 
 # Orientation
 orientation = portrait
@@ -30,10 +30,13 @@ orientation = portrait
 bootstrap = sdl2
 
 # Supported architectures
-arch = armeabi-v7a, arm64-v8a
+android.archs = armeabi-v7a, arm64-v8a
 
-# Android NDK API level
-android.ndk_api = 23
+# Android API levels
+android.minapi = 21
+android.api = 30
+android.compile_sdk = 30
+android.build_tools_version = 30.0.3
 
 # Icon and Presplash
 icon.filename = %(source.dir)s/icon.png
@@ -48,13 +51,7 @@ android.sqlite3 = True
 # Entry point
 android.entrypoint = org.kivy.android.PythonActivity
 
-# API Levels
-android.minapi = 21
-android.target = 30
-android.compile_sdk = 30
-android.build_tools_version = 30.0.3
-
-# Logging
+# Logging level (0=debug, 2=warning)
 log_level = 2
 
 # Prevent deploy and run after build
