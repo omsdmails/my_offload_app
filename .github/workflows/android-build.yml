@@ -1,59 +1,47 @@
-[app]
+name: Build Android APK
 
-# (Required) Title of your application
-title = OffloadApp
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
-# (Required) Package name
-package.name = offloadapp
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-# (Required) Package domain (reverse DNS style)
-package.domain = org.example
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-# Source code location
-source.dir = .
-source.include_exts = py,kv
-source.exclude_exts = spec
-source.include_patterns = assets/*,images/*.png
-source.exclude_dirs = tests, bin
+      - name: Set up Java (JDK 8)
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '8'
 
-# Versioning
-version = 1.0
-android.version_code = 1
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            python3-pip build-essential git \
+            libffi-dev libssl-dev zlib1g-dev libsqlite3-dev \
+            ant openjdk-8-jdk-headless
 
-# Application requirements
-requirements = python3,kivy,flask,requests,psutil,zeroconf,cython
+      - name: Install Buildozer & Cython
+        run: |
+          pip3 install --user --upgrade buildozer cython
 
-# Orientation
-orientation = portrait
+      - name: Add Buildozer to PATH
+        run: echo "${{ runner.home }}/.local/bin" >> $GITHUB_PATH
 
-# Bootstrap (sdl2 is the recommended one)
-bootstrap = sdl2
+      - name: Build APK
+        working-directory: ${{ github.workspace }}
+        run: |
+          buildozer android debug --verbose
 
-# Supported architectures
-android.archs = armeabi-v7a, arm64-v8a
-
-# Android API levels
-android.minapi = 21
-android.api = 30
-android.compile_sdk = 30
-android.build_tools_version = 30.0.3
-
-# Icon and Presplash
-icon.filename = %(source.dir)s/icon.png
-presplash.filename = %(source.dir)s/presplash.png
-
-# Permissions
-android.permissions = INTERNET
-
-# Optional SQLite3
-android.sqlite3 = True
-
-# Entry point
-android.entrypoint = org.kivy.android.PythonActivity
-
-# Logging level (0=debug, 2=warning)
-log_level = 2
-
-# Prevent deploy and run after build
-deploy = 0
-run = 0
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: offloadapp-apk
+          path: bin/*.apk
