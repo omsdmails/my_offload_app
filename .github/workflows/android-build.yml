@@ -19,13 +19,17 @@ jobs:
           distribution: temurin
           java-version: '8'
 
-      - name: Install dependencies
+      - name: Install system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y python3-pip build-essential git \
                libffi-dev libssl-dev zlib1g-dev libsqlite3-dev
-          pip3 install --user buildozer
-      - name: Add buildozer to PATH
+
+      - name: Install Buildozer & Cython
+        run: |
+          pip3 install --user buildozer cython
+
+      - name: Add Buildozer to PATH
         run: echo "${{ runner.home }}/.local/bin" >> $GITHUB_PATH
 
       - name: Build APK
