@@ -25,8 +25,10 @@ jobs:
       - name: Install system packages
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-pip build-essential git \
-            libffi-dev libssl-dev zlib1g-dev wget unzip
+          sudo apt-get install -y \
+            python3-pip build-essential git \
+            libffi-dev libssl-dev zlib1g-dev \
+            wget unzip rsync
 
       - name: Install Android SDK cmdline-tools
         run: |
@@ -42,7 +44,7 @@ jobs:
           echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
           echo "$HOME/android-sdk/platform-tools"       >> $GITHUB_PATH
 
-      - name: Accept licenses & install SDK components
+      - name: Accept SDK licenses & install SDK components
         run: |
           yes | sdkmanager --sdk_root="$HOME/android-sdk" --licenses
           sdkmanager --sdk_root="$HOME/android-sdk" \
@@ -50,8 +52,18 @@ jobs:
             "platforms;android-30" \
             "build-tools;30.0.3"
 
+      - name: Sync SDK for Buildozer & create tools symlink
+        run: |
+          BOZ_SDK="$HOME/.buildozer/android/platform/android-sdk"
+          mkdir -p "${BOZ_SDK}"
+          rsync -a "$HOME/android-sdk/" "${BOZ_SDK}/"
+          mkdir -p "${BOZ_SDK}/tools"
+          ln -s "$HOME/android-sdk/cmdline-tools/latest" "${BOZ_SDK}/tools/latest"
+          ln -s "${BOZ_SDK}/tools/latest/bin"        "${BOZ_SDK}/tools/bin"
+
       - name: Install Buildozer & Cython
-        run: pip3 install --user --upgrade buildozer cython
+        run: |
+          pip3 install --user --upgrade buildozer cython
 
       - name: Add Buildozer to PATH
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
@@ -59,7 +71,8 @@ jobs:
       - name: Build APK (capture log)
         working-directory: ${{ github.workspace }}
         run: |
-          buildozer --sdk-dir "$HOME/android-sdk" android debug --verbose 2>&1 | tee buildozer.log || true
+-         buildozer android debug --sdk-dir "$HOME/android-sdk" --verbose 2>&1 | tee buildozer.log || true
++         buildozer android debug --verbose --sdk-dir "$HOME/android-sdk" 2>&1 | tee buildozer.log || true
 
       - name: Upload Buildozer log
         uses: actions/upload-artifact@v4
